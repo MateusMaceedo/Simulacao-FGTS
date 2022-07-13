@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SimulacaoEmprestimoFGTS.Core.Dto.FGTS;
@@ -12,9 +14,9 @@ using System;
 
 namespace SimulacaoEmprestimoFGTS.IoC
 {
-    public class DependencyContainer
+    public static class DependencyContainer
     {
-        public static void RegisterServices(IServiceCollection services)
+        public static void RegisterServices(IServiceCollection services, IConfiguration Configuration)
         {
             var configuration = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
@@ -24,11 +26,22 @@ namespace SimulacaoEmprestimoFGTS.IoC
             services.Configure<AppConfig>(options => configuration.GetSection("AppConfig").Bind(options));
 
             services.AddScoped<IFGTSService, FGTSService>();
+            
             services.AddScoped<IIOFService, IOFService>();
+            
             services.AddScoped<IConversorTaxaService, ConversorTaxaService>();
+            
             services.AddScoped<ISACService, SACService>();
+            
             services.AddSingleton<ICalculosService, CalculosService>();
+            
             services.AddScoped<IPriceService, PriceService>();
+
+            services.AddDefaultAWSOptions(Configuration.GetAWSOptions("AWS"));
+
+            services.AddAWSService<IAmazonDynamoDB>();
+            
+            services.AddTransient<IDynamoDBContext, DynamoDBContext>();
 
             var config = new AutoMapper.MapperConfiguration(cfg =>
             {

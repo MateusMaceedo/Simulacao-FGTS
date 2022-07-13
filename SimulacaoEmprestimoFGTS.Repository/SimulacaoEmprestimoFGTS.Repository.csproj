@@ -1,20 +1,19 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="10.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
+    <Folder Include="Repository\" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SimulacaoEmprestimoFGTS.Core\SimulacaoEmprestimoFGTS.Core.csproj" />
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.3.55" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SimulacaoEmprestimoFGTS.Domain\SimulacaoEmprestimoFGTS.Domain.csproj" />
   </ItemGroup>
 
 </Project>
