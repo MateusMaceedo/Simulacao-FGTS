@@ -1,30 +1,21 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
-using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SimulacaoEmprestimoFGTS.Core.Dto.FGTS;
-using SimulacaoEmprestimoFGTS.Core.Dto.SAC;
+using SimulacaoEmprestimoFGTS.Application.UseCase;
 using SimulacaoEmprestimoFGTS.Core.Interfaces;
 using SimulacaoEmprestimoFGTS.Core.Services;
-using SimulacaoEmprestimoFGTS.Domain.Model.CONFIG;
-using SimulacaoEmprestimoFGTS.Domain.Model.FGTS;
-using SimulacaoEmprestimoFGTS.Domain.Model.SAC;
+using SimulacaoEmprestimoFGTS.Domain.Model.ITEM;
 using System;
 
 namespace SimulacaoEmprestimoFGTS.IoC
 {
     public static class DependencyContainer
     {
-        public static void RegisterServices(IServiceCollection services, IConfiguration Configuration)
+        public static void RegisterServices(
+            IServiceCollection services, 
+            IConfiguration Configuration)
         {
-            var configuration = new ConfigurationBuilder()
-            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-            .AddJsonFile("appsettings.json")
-            .Build();
-
-            services.Configure<AppConfig>(options => configuration.GetSection("AppConfig").Bind(options));
-
             services.AddScoped<IFGTSService, FGTSService>();
             
             services.AddScoped<IIOFService, IOFService>();
@@ -37,26 +28,23 @@ namespace SimulacaoEmprestimoFGTS.IoC
             
             services.AddScoped<IPriceService, PriceService>();
 
-            services.AddDefaultAWSOptions(Configuration.GetAWSOptions("AWS"));
-
-            services.AddAWSService<IAmazonDynamoDB>();
-            
             services.AddTransient<IDynamoDBContext, DynamoDBContext>();
 
-            var config = new AutoMapper.MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<RepasseFGTS, RepasseFGTSDto>()
-                .ForMember(x => x.Aliquota, source => source.MapFrom(src => src.Aliquota.Percentual))
-                .ForMember(x => x.ParcelaAdicional, source => source.MapFrom(src => src.Aliquota.ParcelaAdicional));
+            #region DynamoDB
+            services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
+            Environment.SetEnvironmentVariable("AWS_ACCESS_KEY_ID", Configuration["AWS:AccessKey"]);
+            Environment.SetEnvironmentVariable("AWS_SECRET_ACCESS_KEY", Configuration["AWS:SecretKey"]);
+            Environment.SetEnvironmentVariable("AWS_REGION", Configuration["AWS:Region"]);
+            Environment.SetEnvironmentVariable("AWS_CONTENT", Configuration["VAR:TableName"]);
+            services.AddAWSService<IAmazonDynamoDB>();
+            #endregion
 
-                cfg.CreateMap<SimulacaoFGTS, SimulacaoFGTSDto>()
-                .ForMember(x => x.ValorRepasseFGTS, opt => opt.MapFrom(src => src.Repasse.ValorParcela))
-                .ForMember(x => x.DataVencimento, opt => opt.MapFrom(src => src.Repasse.DataVencimento));
-
-                cfg.CreateMap<SimulacaoSAC, SimulacaoSACDto>().ReverseMap();
-            });
-            IMapper mapper = config.CreateMapper();
-            services.AddSingleton(mapper);
+            #region Casos de Uso
+            services.AddSingleton<IAWSProductListDynamoDbExamples, AWSProductListDynamoDbExamples>();
+            services.AddSingleton<IInsertItem, InsertItemUseCase>();
+            services.AddSingleton<IQueryItem<DynamoDbTableItems>, QueryItemUseCase>();
+            services.AddSingleton<IDeleteItem, DeleteItemUseCase>();
+            #endregion]
         }
     }
 }

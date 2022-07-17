@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
 using SimulacaoEmprestimoFGTS.IoC;
-using System.Text.Json.Serialization;
+using SimulacaoEmprestimoFGTS.IoC.ConfigurationExtensions;
 
 namespace SimulacaoEmprestimoFGTS.Api
 {
@@ -20,19 +19,15 @@ namespace SimulacaoEmprestimoFGTS.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers().AddJsonOptions(
-                options => {
-                    var enumConverter = new JsonStringEnumConverter();
-                    options.JsonSerializerOptions.Converters.Add(enumConverter);
-                });
+            ConfigurarBuildExtensions.ConfigurarBuild(services);
+
+            ConfigurarJsonExtensions.ConfigurarJson(services);
 
             DependencyContainer.RegisterServices(services, Configuration);
 
-            services.AddSwaggerGen(swagger =>
-            {
-                swagger.SwaggerDoc("v1", new OpenApiInfo { Title = "SimulacaoEmprestimo" });
-                swagger.DescribeAllParametersInCamelCase();
-            });
+            ConfigurarAutoMapperExtensions.ConfigurarMapper(services);
+
+            ConfigurarSwaggerExtensions.ConfigurarSwagger(services);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -43,7 +38,9 @@ namespace SimulacaoEmprestimoFGTS.Api
             }
 
             app.UseRouting();
+
             app.UseSwagger();
+
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "SimulacaoEmprestimo");
@@ -53,6 +50,7 @@ namespace SimulacaoEmprestimoFGTS.Api
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}");
             });
         }
     }
