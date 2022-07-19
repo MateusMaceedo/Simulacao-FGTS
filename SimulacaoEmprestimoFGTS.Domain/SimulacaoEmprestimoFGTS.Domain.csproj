@@ -5,7 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Model\PRICE\" />
+    <Compile Remove="Model\PRICE\**" />
+    <EmbeddedResource Remove="Model\PRICE\**" />
+    <None Remove="Model\PRICE\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Extensions\" />
+    <Folder Include="Exceptions\" />
   </ItemGroup>
 
 </Project>

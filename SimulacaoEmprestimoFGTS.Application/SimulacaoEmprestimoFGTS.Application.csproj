@@ -4,4 +4,19 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.3.55" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SimulacaoEmprestimoFGTS.Core\SimulacaoEmprestimoFGTS.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Dto\" />
+    <Folder Include="Interfaces\" />
+    <Folder Include="Models\Request\" />
+    <Folder Include="Mappers\" />
+  </ItemGroup>
+
 </Project>
